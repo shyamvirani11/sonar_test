@@ -44,12 +44,9 @@ public class GuessWordServiceImpl implements GuessWordService {
 	@Override
 	public ResponseEntity<WordDTO> getHints(String word) {
 		Optional<WordEntity> wordEntity = wordRepository.findByWord(word);
-		WordDTO wordDTO = new WordDTO();
-		if(wordEntity.isPresent()){
-			 wordDTO =getWordDTOFromEntity(wordEntity.get());
-			if(wordDTO.getHints().isEmpty()) {
-				wordDTO = getScrambledHint(word);
-			}
+		WordDTO wordDTO =getWordDTOFromEntity(wordEntity.get());
+		if(wordDTO.getHints().isEmpty()) {
+			wordDTO = getScrambledHint(word);
 		}
         return new ResponseEntity<>(wordDTO, HttpStatus.OK);
 	}
