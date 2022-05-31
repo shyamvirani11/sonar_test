@@ -5,11 +5,10 @@ import com.techathon.guesstheword.model.WordDTO;
 import com.techathon.guesstheword.repository.WordRepository;
 import com.techathon.guesstheword.service.GuessWordService;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,9 @@ public class GuessWordServiceImpl implements GuessWordService {
 
 	@Override
 	public ResponseEntity<WordDTO> checkValidWord(String word) {
-		WordEntity wordEntity = wordRepository.findByWord(word);
-		if(wordEntity!=null) {
+		Optional<WordEntity> wordEntity = wordRepository.findByWord(word);
+
+		if(wordEntity.isPresent()) {
 	        return new ResponseEntity<>(HttpStatus.FOUND);
 		}else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -43,11 +43,13 @@ public class GuessWordServiceImpl implements GuessWordService {
 
 	@Override
 	public ResponseEntity<WordDTO> getHints(String word) {
-		WordEntity wordEntity = wordRepository.findByWord(word);
-		WordDTO wordDTO =getWordDTOFromEntity(wordEntity);
-		
-		if(wordDTO.getHints().isEmpty()) {
-			wordDTO = getScrambledHint(word);
+		Optional<WordEntity> wordEntity = wordRepository.findByWord(word);
+		WordDTO wordDTO = new WordDTO();
+		if(wordEntity.isPresent()){
+			 wordDTO =getWordDTOFromEntity(wordEntity.get());
+			if(wordDTO.getHints().isEmpty()) {
+				wordDTO = getScrambledHint(word);
+			}
 		}
         return new ResponseEntity<>(wordDTO, HttpStatus.OK);
 	}
